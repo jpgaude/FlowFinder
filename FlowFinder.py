@@ -7,20 +7,28 @@ import json
 object_name = 'WorkOrder'
 field_name = 'Resource_Type__c'
 directory = '.'
-dmlOpperation = 'insert|update'
+dmlOpperation = 'insertupdate'
 # directory = "C:/VSCode/HuesbyFullFlows/force-app/main/default/flows"
 
 flowToReferencesDict = {"object": object_name, "field": field_name, "results": {}, "errors": []}
 
 def where_record_update_is_specified_object(tag):
-  if tag.name != "recordUpdates":
-    return
-  return tag.name == "recordUpdates" and ((tag.find("object") != None and tag.find("object").string == object_name) or ((tag.find("inputReference") != None and tag.find("inputReference").string == "$Record")))
+  return where_dml_is_on_specified_object("recordUpdates", tag)
 
 def where_record_insert_is_specified_object(tag):
-  if tag.name != "recordCreates":
-    return
-  return tag.name == "recordCreates" and ((tag.find("object") != None and tag.find("object").string == object_name) or ((tag.find("inputReference") != None and tag.find("inputReference").string == "$Record")))
+  return where_dml_is_on_specified_object("recordCreates", tag)
+
+def where_dml_is_on_specified_object(dmlElementType, tag):
+  if tag.name != dmlElementType:
+    return False
+  if tag.name == dmlElementType and ((tag.find("object") != None and tag.find("object").string == object_name) or ((tag.find("inputReference") != None and tag.find("inputReference").string == "$Record"))):
+    return True
+  if tag.find("inputReference") != None:
+    inputReference = tag.find("inputReference").string
+    for object_var in flow.find_all(where_variable_is_specified_object):
+      if object_var.find("name").string == inputReference:
+        return True
+  return False
 
 def where_variable_is_specified_object(tag):
   return tag.name == "variables" and tag.find("objectType") != None and tag.find("objectType").string == object_name
