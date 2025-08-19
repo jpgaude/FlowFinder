@@ -111,9 +111,11 @@ for flowFileName in flowFileNames:
       "message": "Could not parse the flow XML for '" + flowFileName + "'."
     })
 
-# objectToFlowMap["objectRefs"] = sorted(objectToFlowMap["objectRefs"], key=itemgetter("fileName"))
-# for entry in objectToFlowMap["objectRefs"]:
-#   entry["flows"] = sorted(entry["flows"], key=itemgetter("flowLabelName"))
+objectToFlowMap["objectRefs"] = sorted(objectToFlowMap["objectRefs"], key=itemgetter("fileName"))
+for entry in objectToFlowMap["objectRefs"]:
+  entry["objects"] = sorted(entry["objects"], key=itemgetter("name"))
+  for objectName in entry["objects"]:
+    objectName["fields"] = sorted(objectName["fields"])
 
 with open("objectRefsInFlows2.json", "w") as f:
   f.write(json.dumps(objectToFlowMap))
