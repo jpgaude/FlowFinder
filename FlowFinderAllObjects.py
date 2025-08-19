@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from operator import itemgetter
 import os
 import json
+import csv
 
 objectToFlowMap = {"objectRefs": [], "errors": []} # Maps objects to unique lists of flows.
 directory = '.'
@@ -119,3 +120,20 @@ for entry in objectToFlowMap["objectRefs"]:
 with open("objectRefsInFlows2.json", "w") as f:
   f.write(json.dumps(objectToFlowMap))
   f.close()
+
+csvColumnHeaders = ["Object", "Field"]
+
+for entry in objectToFlowMap["objectRefs"]:
+  csvRows = []
+  filename = "./objRefCSVs/" + entry["fileName"].split(".", 1)[0] + ".csv"
+  
+  for objectEntry in entry["objects"]:
+    csvRows.append([objectEntry["name"], objectEntry["fields"][0]])
+    # if len(objectEntry["fields"]) > 1:
+    for fieldName in objectEntry["fields"][1:]:
+      csvRows.append(["",fieldName])
+
+  with open(filename, 'w', newline="") as csvfile:
+    csvwriter = csv.writer(csvfile)
+    csvwriter.writerow(csvColumnHeaders)
+    csvwriter.writerows(csvRows)
