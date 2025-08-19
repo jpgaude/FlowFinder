@@ -17,7 +17,6 @@ def where_variable_is_sobject(tag):
   return True
 
 def where_ref_tag(tag):
-  # tag = BeautifulSoup("", "xml")
   return tag.name == "leftValueReference" or tag.name == "elementReference" or tag.name == "assignToReference" or tag.name == "targetReference"
 
 def where_update_or_create_or_lookup(tag):
