@@ -113,8 +113,8 @@ for flowFileName in flowFileNames:
 objectToFlowMap["objectRefs"] = sorted(objectToFlowMap["objectRefs"], key=itemgetter("fileName"))
 for entry in objectToFlowMap["objectRefs"]:
   entry["objects"] = sorted(entry["objects"], key=itemgetter("name"))
-  for objectName in entry["objects"]:
-    objectName["fields"] = sorted(objectName["fields"])
+  for objectEntry in entry["objects"]:
+    objectEntry["fields"] = sorted(objectEntry["fields"])
 
 with open("objectRefsInFlows2.json", "w") as f:
   f.write(json.dumps(objectToFlowMap))
