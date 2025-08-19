@@ -17,6 +17,24 @@ def where_variable_is_sobject(tag):
     return False
   return True
 
+def where_collection_filter_contains_vars(tag):
+  if tag.name != "collectionProcessors":
+    return False
+  if tag.find("elementSubtype").string != "FilterCollectionProcessor":
+    return False
+  collectionReference = tag.find("collectionReference")
+  if collectionReference.string in objectsDictionary:
+    return True
+  return False
+
+def where_collection_loop_element_contains_vars(tag):
+  if tag.name != "loops":
+    return False
+  collectionReference = tag.find("collectionReference")
+  if collectionReference.string in objectsDictionary:
+    return True
+  return False
+
 def where_ref_tag(tag):
   return tag.name == "leftValueReference" or tag.name == "elementReference" or tag.name == "assignToReference" or tag.name == "targetReference"
 
@@ -85,15 +103,6 @@ for flowFileName in flowFileNames:
       objectName = variableTag.find("objectType").string
       variableName = variableTag.find("name").string
       objectsDictionary[variableName] = objectName
-    
-    for refTag in flow.find_all(where_ref_tag):
-      refValue = refTag.string
-      if "." in refValue:
-        objAndField = refValue.split(".", 1)
-        objectName = objAndField[0]
-        fieldName = objAndField[1]
-        if(objectName in objectsDictionary): #objectName is not actually the object API name, but the name of a variable as it is varName.FieldAPIName__c in references.
-          log_obj_ref(flowFileName, flowLabelName, flowApiName, flowApiVersion, objectsDictionary[objectName], fieldName)
 
     for tag in flow.find_all(where_update_or_create_or_lookup):
       objectTag = tag.find("object")
@@ -105,6 +114,29 @@ for flowFileName in flowFileNames:
         for inputAssignmentsTag in tag.find_all("inputAssignments"):
           fieldName = inputAssignmentsTag.find("field").string
           log_obj_ref(flowFileName, flowLabelName, flowApiName, flowApiVersion, objectTag.string, fieldName)
+
+        if tag.name == "recordLookups":
+          objectsDictionary[tag.find("name").string] = objectTag.string
+
+    for i in range(2):
+      for tag in flow.find_all(where_collection_filter_contains_vars):
+        objectName = objectsDictionary[tag.find("collectionReference").string]
+        if objectName != None:
+          objectsDictionary[tag.find("name").string] = objectName
+
+      for tag in flow.find_all(where_collection_loop_element_contains_vars):
+        objectName = objectsDictionary[tag.find("collectionReference").string]
+        if objectName != None:
+          objectsDictionary[tag.find("name").string] = objectName
+    
+    for refTag in flow.find_all(where_ref_tag):
+      refValue = refTag.string
+      if "." in refValue:
+        objAndField = refValue.split(".", 1)
+        objectName = objAndField[0]
+        fieldName = objAndField[1]
+        if(objectName in objectsDictionary): #objectName is not actually the object API name, but the name of a variable as it is varName.FieldAPIName__c in references.
+          log_obj_ref(flowFileName, flowLabelName, flowApiName, flowApiVersion, objectsDictionary[objectName], fieldName)
 
   except Exception as e:
     objectToFlowMap["errors"].append({
