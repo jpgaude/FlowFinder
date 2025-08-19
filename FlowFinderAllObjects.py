@@ -36,7 +36,7 @@ def where_collection_loop_element_contains_vars(tag):
   return False
 
 def where_ref_tag(tag):
-  return tag.name == "leftValueReference" or tag.name == "elementReference" or tag.name == "assignToReference" or tag.name == "targetReference"
+  return tag.name == "leftValueReference" or tag.name == "elementReference" or tag.name == "assignToReference" or tag.name == "targetReference" or tag.name == "inputReference"
 
 def where_update_or_create_or_lookup(tag):
   return tag.name == "recordUpdates" or tag.name == "recordCreates" or tag.name == "recordLookups"
@@ -87,7 +87,6 @@ for flowFileName in flowFileNames:
     
     flowStart = flow.find("start")
     if(flowStart != None):
-
 
       if(flowStart.find("connector") != None):
         flowApiName = flowStart.find("connector").find("targetReference").string
