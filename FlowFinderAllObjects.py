@@ -143,7 +143,7 @@ for flowFileName in flowFileNames:
       "message": "Could not parse the flow XML for '" + flowFileName + "'."
     })
 
-objectToFlowMap["objectRefs"] = sorted(objectToFlowMap["objectRefs"], key=itemgetter("fileName"))
+objectToFlowMap["objectRefs"] = sorted(objectToFlowMap["objectRefs"], key=itemgetter("flowName"))
 for entry in objectToFlowMap["objectRefs"]:
   entry["objects"] = sorted(entry["objects"], key=itemgetter("name"))
   for objectEntry in entry["objects"]:
